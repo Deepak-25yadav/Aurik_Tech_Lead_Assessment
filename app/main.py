@@ -2,12 +2,21 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.db.session import init_db, async_session_maker
+from app.services.catalog_service import seed_reference_catalog
+from app.api.router import api_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Lifespan startup: will initialize DB & seed catalog in Phase 1
+    # Initialize SQLite tables on startup
+    await init_db()
+    
+    # Automatically seed reference catalog if empty
+    async with async_session_maker() as session:
+        await seed_reference_catalog(session, settings.DATA_DIR)
+        
     yield
-    # Lifespan shutdown
+    # Cleanup on shutdown
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -27,6 +36,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount API v1 router
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {
@@ -40,5 +52,6 @@ async def root():
     return {
         "message": "Industrial Equipment Monitoring Service is active.",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
+        "api_v1": settings.API_V1_STR,
     }
