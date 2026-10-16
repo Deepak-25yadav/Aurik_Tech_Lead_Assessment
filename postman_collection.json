@@ -1,0 +1,218 @@
+{
+  "info": {
+    "name": "Industrial Equipment Monitoring API",
+    "_postman_id": "aurik-equipment-monitoring-v1",
+    "description": "Postman Collection for Aurik Technologies Founding Tech Lead Assessment backend service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ingestion",
+      "item": [
+        {
+          "name": "Ingest PulseForge",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendor\": \"PulseForge\",\n  \"plant_id\": \"PLANT_01\",\n  \"events\": [\n    {\n      \"event_id\": \"PF-1001\",\n      \"machine_id\": \"EQ-001\",\n      \"line_id\": \"LINE-A\",\n      \"event_time\": \"2026-04-18T07:59:12Z\",\n      \"event_type\": \"HIGH_VIBRATION\",\n      \"severity\": \"high\",\n      \"vibration_mm_s\": 11.8,\n      \"temperature_c\": 83.2,\n      \"machine_state\": \"running\",\n      \"sensor_health\": 0.91,\n      \"vendor_confidence\": 0.87\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingest/pulseforge?async=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingest", "pulseforge"],
+              "query": [{"key": "async", "value": "false"}]
+            }
+          }
+        },
+        {
+          "name": "Ingest ThermexWatch",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"ThermexWatch\",\n  \"site_code\": \"PLANT_01\",\n  \"readings\": [\n    {\n      \"readingId\": \"TW-8801\",\n      \"assetCode\": \"EQ-001\",\n      \"productionLine\": \"A\",\n      \"timestampMs\": 1776499152000,\n      \"alertCode\": \"VIB_WARN\",\n      \"level\": 4,\n      \"vibration_g\": 0.81,\n      \"temperature_f\": 181.2,\n      \"power_kw\": 37.8,\n      \"is_active\": true,\n      \"signal_quality\": \"GOOD\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingest/thermexwatch?async=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingest", "thermexwatch"],
+              "query": [{"key": "async", "value": "false"}]
+            }
+          }
+        },
+        {
+          "name": "Ingest MaintaFlow",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider_name\": \"MaintaFlow\",\n  \"factory_id\": \"PLANT_01\",\n  \"records\": [\n    {\n      \"record_id\": \"MF-501\",\n      \"machine_ref\": \"EQ-001\",\n      \"line_ref\": \"LINE-A\",\n      \"recorded_at\": \"2026/04/18 08:14:05\",\n      \"record_type\": \"inspection\",\n      \"inspection_result\": \"minor_defect_found\",\n      \"maintenance_status\": \"not_due\",\n      \"days_since_last_service\": 18,\n      \"technician_note\": \"Belt wear visible; machine still operational\",\n      \"manual_confidence\": \"medium\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingest/maintaflow?async=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingest", "maintaflow"],
+              "query": [{"key": "async", "value": "false"}]
+            }
+          }
+        },
+        {
+          "name": "Ingest Multi-Vendor Batch Envelope",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pulseforge\": {\n    \"vendor\": \"PulseForge\",\n    \"plant_id\": \"PLANT_01\",\n    \"events\": [\n      {\n        \"event_id\": \"PF-2001\",\n        \"machine_id\": \"EQ-003\",\n        \"line_id\": \"LINE-B\",\n        \"event_time\": \"2026-04-18T08:17:01Z\",\n        \"event_type\": \"RECOVERY_SIGNAL\",\n        \"severity\": \"low\",\n        \"vibration_mm_s\": 2.1,\n        \"temperature_c\": 60.4,\n        \"machine_state\": \"running\",\n        \"sensor_health\": 0.97,\n        \"vendor_confidence\": 0.94\n      }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingest/batch?async=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingest", "batch"],
+              "query": [{"key": "async", "value": "false"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status & DLQ",
+      "item": [
+        {
+          "name": "Get Job Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingestion/status/:job_id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingestion", "status", ":job_id"],
+              "variable": [{"key": "job_id", "value": "latest-job-id"}]
+            }
+          }
+        },
+        {
+          "name": "Get Dead Letter Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/ingestion/dead-letter-queue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "ingestion", "dead-letter-queue"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Operational Views",
+      "item": [
+        {
+          "name": "List All Machines",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/machines",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "machines"]
+            }
+          }
+        },
+        {
+          "name": "Machine Operational View (EQ-001)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/machines/EQ-001/operational-view",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "machines", "EQ-001", "operational-view"]
+            }
+          }
+        },
+        {
+          "name": "Machines Needing Attention Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/machines/attention",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "machines", "attention"]
+            }
+          }
+        },
+        {
+          "name": "Plant Summary (PLANT_01)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plants/PLANT_01/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plants", "PLANT_01", "summary"]
+            }
+          }
+        },
+        {
+          "name": "Line Summary (LINE-A)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/lines/LINE-A/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "lines", "LINE-A", "summary"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seed Data",
+      "item": [
+        {
+          "name": "Load All Seed Datasets",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/seed/load-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "seed", "load-all"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
